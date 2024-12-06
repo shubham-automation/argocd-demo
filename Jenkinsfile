@@ -81,7 +81,7 @@ pipeline {
                                 git config --global user.name '${GIT_USER_NAME}'
                                 git clone https://${GitPassword}@github.com/${GitUser}/${GIT_REPO_NAME}
                                 cd ${WORKSPACE}/${GIT_REPO_NAME}
-                                sed -i '' "s/IMAGE_ID/${BUILD_NUMBER}/g" helm-chart/values.yaml
+                                sed -i '' "s/tag: .*/${BUILD_NUMBER}/g" helm-chart/values.yaml
                                 git add helm-chart/values.yaml
                                 git commit -m "Update image version to ${BUILD_NUMBER}"
                                 git push https://${GitPassword}@github.com/${GitUser}/${GIT_REPO_NAME} HEAD:main
@@ -99,7 +99,7 @@ pipeline {
                         withKubeConfig([credentialsId: 'KUBECONFIG', serverUrl: 'https://127.0.0.1:6443']) {
                             sh '''  
                                 cd ${WORKSPACE}/${GIT_REPO_NAME}
-                                kubectl apply -f application.yaml
+                                /usr/local/bin/kubectl apply -f application.yaml
                             '''
                         }
                      }
