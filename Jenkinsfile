@@ -9,6 +9,7 @@ pipeline {
     // }
 
     environment{
+        PATH = "/opt/homebrew/bin:$PATH"
         GIT_REPO_NAME = 'argocd-devops'
     }
 
