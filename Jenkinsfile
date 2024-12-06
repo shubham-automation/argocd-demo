@@ -5,7 +5,7 @@ pipeline {
 
     agent any
     tools {
-        docker 'docker'
+        docker 'dockerTool'
     }
 
     environment{
