@@ -1,11 +1,17 @@
 pipeline {
     triggers {
       pollSCM('')
-    }  
+    } 
+
     agent any
+    tools {
+        docker 'docker'
+    }
+
     environment{
         GIT_REPO_NAME = 'argocd-devops'
     }
+
     stages {        
         stage('Run Automation Test Cases') {
             steps {
