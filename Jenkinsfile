@@ -8,7 +8,8 @@ pipeline {
     environment{
         GIT_REPO_NAME = 'argocd-devops'
         GIT_USER_EMAIL = credentials('git-user-email')
-        GIT_USER_NAME = credentials('git-user-name')    
+        GIT_USER_NAME = credentials('git-user-name')
+        HOME = '/var/root/.jenkins'
     }
 
     stages {        
