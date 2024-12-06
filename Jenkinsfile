@@ -4,9 +4,9 @@ pipeline {
     } 
 
     agent any
-    tools {
-        dockerTool 'docker'
-    }
+    // tools {
+    //     dockerTool 'docker'
+    // }
 
     environment{
         GIT_REPO_NAME = 'argocd-devops'
