@@ -37,7 +37,7 @@ pipeline {
             steps {
                 script {
                   sh "curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl > html.tpl"
-                  sh "trivy image --format template --template '@html.tpl' --output trivy_report.html --exit-code 0 --severity HIGH,CRITICAL chaudharishubham2911/argocd-demo:${BUILD_NUMBER}"
+                  sh "/usr/local/bin/trivy image --format template --template '@html.tpl' --output trivy_report.html --exit-code 0 --severity HIGH,CRITICAL chaudharishubham2911/argocd-demo:${BUILD_NUMBER}"
                 }
             }
             post {
