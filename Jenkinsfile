@@ -7,6 +7,8 @@ pipeline {
 
     environment{
         GIT_REPO_NAME = 'argocd-devops'
+        GIT_USER_EMAIL = credentials('git-user-email')
+        GIT_USER_NAME = credentials('git-user-name')    
     }
 
     stages {        
@@ -74,6 +76,8 @@ pipeline {
                  script {
                         withCredentials([usernamePassword(credentialsId: 'git-creds', passwordVariable: 'GitPassword', usernameVariable: 'GitUser')]) {
                             sh '''
+                                git config --global user.email '${GIT_USER_EMAIL}'
+                                git config --global user.name '${GIT_USER_NAME}'
                                 git clone https://${GitPassword}@github.com/${GitUser}/${GIT_REPO_NAME}
                                 cd ${WORKSPACE}/${GIT_REPO_NAME}
                                 sed -i '' "s/IMAGE_ID/${BUILD_NUMBER}/g" helm-chart/values.yaml
