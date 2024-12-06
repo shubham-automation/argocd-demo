@@ -76,7 +76,7 @@ pipeline {
                             sh '''
                                 git clone https://${GitPassword}@github.com/${GitUser}/${GIT_REPO_NAME}
                                 cd ${WORKSPACE}/${GIT_REPO_NAME}
-                                sed -i "s/IMAGE_ID/${BUILD_NUMBER}/g" helm-chart/values.yaml
+                                sed -i '' "s/IMAGE_ID/${BUILD_NUMBER}/g" helm-chart/values.yaml
                                 git add helm-chart/values.yaml
                                 git commit -m "Update image version to ${BUILD_NUMBER}"
                                 git push https://${GitPassword}@github.com/${GitUser}/${GIT_REPO_NAME} HEAD:main
