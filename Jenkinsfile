@@ -4,12 +4,8 @@ pipeline {
     } 
 
     agent any
-    // tools {
-    //     dockerTool 'docker'
-    // }
 
     environment{
-        PATH = "/opt/homebrew/bin:$PATH"
         GIT_REPO_NAME = 'argocd-devops'
     }
 
@@ -31,8 +27,8 @@ pipeline {
         stage('Docker Build') {
             steps {
                 script {
-                  sh "docker build -t ${BUILD_NUMBER} ."
-                  sh "docker tag ${BUILD_NUMBER}:latest chaudharishubham2911/argocd-demo:${BUILD_NUMBER}"
+                  sh "/opt/homebrew/bin/docker build -t ${BUILD_NUMBER} ."
+                  sh "/opt/homebrew/bin/docker tag ${BUILD_NUMBER}:latest chaudharishubham2911/argocd-demo:${BUILD_NUMBER}"
                 }
             }
         }
@@ -66,8 +62,8 @@ pipeline {
                          credentialsId: 'docker-creds'
                          ]
                          withCredentials([usernamePassword(credentialsId: 'docker-creds', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
-                         sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
-                         sh "docker push chaudharishubham2911/argocd-demo:${BUILD_NUMBER}"
+                         sh "/opt/homebrew/bin/docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
+                         sh "/opt/homebrew/bin/docker push chaudharishubham2911/argocd-demo:${BUILD_NUMBER}"
                      }
                  }
              }
