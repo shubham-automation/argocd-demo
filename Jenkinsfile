@@ -24,8 +24,8 @@ pipeline {
         stage('Docker Build') {
             steps {
                 script {
-                  sh "docker build -t ${GIT_COMMIT} ."
-                  sh "docker tag ${GIT_COMMIT}:latest chaudharishubham2911/argocd-demo:${GIT_COMMIT}"
+                  sh "docker build -t ${BUILD_NUMBER} ."
+                  sh "docker tag ${BUILD_NUMBER}:latest chaudharishubham2911/argocd-demo:${BUILD_NUMBER}"
                 }
             }
         }
@@ -34,7 +34,7 @@ pipeline {
             steps {
                 script {
                   sh "curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl > html.tpl"
-                  sh "trivy image --format template --template '@html.tpl' --output trivy_report.html --exit-code 0 --severity HIGH,CRITICAL chaudharishubham2911/argocd-demo:${GIT_COMMIT}"
+                  sh "trivy image --format template --template '@html.tpl' --output trivy_report.html --exit-code 0 --severity HIGH,CRITICAL chaudharishubham2911/argocd-demo:${BUILD_NUMBER}"
                 }
             }
             post {
@@ -60,7 +60,7 @@ pipeline {
                          ]
                          withCredentials([usernamePassword(credentialsId: 'docker-creds', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
                          sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
-                         sh "docker push chaudharishubham2911/argocd-demo:${GIT_COMMIT}"
+                         sh "docker push chaudharishubham2911/argocd-demo:${BUILD_NUMBER}"
                      }
                  }
              }
@@ -73,9 +73,9 @@ pipeline {
                             sh '''
                                 git clone https://${GitPassword}@github.com/${GitUser}/${GIT_REPO_NAME}
                                 cd ${WORKSPACE}/${GIT_REPO_NAME}
-                                sed -i "s/IMAGE_ID/${GIT_COMMIT}/g" helm-chart/values.yaml
+                                sed -i "s/IMAGE_ID/${BUILD_NUMBER}/g" helm-chart/values.yaml
                                 git add helm-chart/values.yaml
-                                git commit -m "Update image version to ${GIT_COMMIT}"
+                                git commit -m "Update image version to ${BUILD_NUMBER}"
                                 git push https://${GitPassword}@github.com/${GitUser}/${GIT_REPO_NAME} HEAD:main
                             '''
                         stash name: "${GIT_REPO_NAME}", includes: '**/*', path: "${GIT_REPO_NAME}"   
@@ -84,20 +84,16 @@ pipeline {
                  }
             }
 
-         stage('Create ArgoCD Application') {
-           when {
-             expression {
-               def CREATE_APP = env.CREATE_APP
-               return CREATE_APP == 'Yes'
-             }
-            }          
+         stage('Create ArgoCD Application') {        
              steps {
                  script {
                         unstash "${GIT_REPO_NAME}"
+                        withKubeConfig([credentialsId: 'KUBECONFIG', serverUrl: 'https://127.0.0.1:6443']) {
                             sh '''  
                                 cd ${WORKSPACE}/${GIT_REPO_NAME}
-                                kubectl apply -f application.yaml --kubeconfig ${WORKSPACE}/kubeconfig
+                                kubectl apply -f application.yaml
                             '''
+                        }
                      }
                  }
             }            
