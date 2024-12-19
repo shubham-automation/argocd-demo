@@ -82,9 +82,14 @@ pipeline {
                                 git clone https://${GitPassword}@github.com/${GitUser}/${GIT_REPO_NAME}
                                 cd ${WORKSPACE}/${GIT_REPO_NAME}
                                 sed -i '' "s/tag: .*/tag: ${BUILD_NUMBER}/g" helm-chart/values.yaml
-                                git add helm-chart/values.yaml
-                                git commit -m "Update image version to ${BUILD_NUMBER}"
-                                git push https://${GitPassword}@github.com/${GitUser}/${GIT_REPO_NAME} HEAD:main
+                                	
+                                if [ -n "$(git status --porcelain)" ]; then
+                                    git add helm-chart/values.yaml
+                                    git commit -m "Update image version to ${BUILD_NUMBER}"
+                                    git push https://${GitPassword}@github.com/${GitUser}/${GIT_REPO_NAME} HEAD:main
+                                else
+                                    echo "No changes to commit."
+                                fi
                             '''
                         stash name: "${GIT_REPO_NAME}", includes: '**/*', path: "${GIT_REPO_NAME}"   
                         }
