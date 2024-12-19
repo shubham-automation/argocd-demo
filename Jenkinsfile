@@ -30,8 +30,8 @@ pipeline {
         stage('Docker Build') {
             steps {
                 script {
-                  sh "/opt/homebrew/bin/docker build -t ${BUILD_NUMBER} ."
-                  sh "/opt/homebrew/bin/docker tag ${BUILD_NUMBER}:latest chaudharishubham2911/argocd-demo:${BUILD_NUMBER}"
+                  sh "/opt/homebrew/bin/docker build -t ${GIT_COMMIT} ."
+                  sh "/opt/homebrew/bin/docker tag ${GIT_COMMIT}:latest chaudharishubham2911/argocd-demo:${GIT_COMMIT}"
                 }
             }
         }
@@ -40,7 +40,7 @@ pipeline {
             steps {
                 script {
                   sh "curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl > html.tpl"
-                  sh "/usr/local/bin/trivy image --format template --template '@html.tpl' --output trivy_report.html --exit-code 0 --severity HIGH,CRITICAL chaudharishubham2911/argocd-demo:${BUILD_NUMBER}"
+                  sh "/usr/local/bin/trivy image --format template --template '@html.tpl' --output trivy_report.html --exit-code 0 --severity HIGH,CRITICAL chaudharishubham2911/argocd-demo:${GIT_COMMIT}"
                 }
             }
             post {
@@ -66,7 +66,7 @@ pipeline {
                          ]
                          withCredentials([usernamePassword(credentialsId: 'docker-creds', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
                          sh "/opt/homebrew/bin/docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
-                         sh "/opt/homebrew/bin/docker push chaudharishubham2911/argocd-demo:${BUILD_NUMBER}"
+                         sh "/opt/homebrew/bin/docker push chaudharishubham2911/argocd-demo:${GIT_COMMIT}"
                      }
                  }
              }
@@ -81,11 +81,11 @@ pipeline {
                                 git config --global user.name '${GIT_USER_NAME}'
                                 git clone https://${GitPassword}@github.com/${GitUser}/${GIT_REPO_NAME}
                                 cd ${WORKSPACE}/${GIT_REPO_NAME}
-                                sed -i '' "s/tag: .*/tag: ${BUILD_NUMBER}/g" helm-chart/values.yaml
+                                sed -i '' "s/tag: .*/tag: ${GIT_COMMIT}/g" helm-chart/values.yaml
                                 	
                                 if [ -n "$(git status --porcelain)" ]; then
                                     git add helm-chart/values.yaml
-                                    git commit -m "Update image version to ${BUILD_NUMBER}"
+                                    git commit -m "Update image version to ${GIT_COMMIT}"
                                     git push https://${GitPassword}@github.com/${GitUser}/${GIT_REPO_NAME} HEAD:main
                                 else
                                     echo "No changes to commit."
